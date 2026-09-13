@@ -1,0 +1,37 @@
+services:
+  ssh:
+    enabled: true
+    listen_port: 22
+    target_port: 22
+  telnet:
+    enabled: true
+    listen_port: 23
+    target_port: 23
+
+auth:
+  mode: "accept_all"
+  require_password: true
+  allow_none_auth: false
+  allow_publickey: false
+  min_attempts: 1
+  max_attempts: 1
+  cache_ttl_hours: 24
+
+web:
+  host: "0.0.0.0"
+  port: 48921
+  secret_slug: "ghost_sec_9f2a7b8e14"
+  title: "GHOSTPOT // Honeypot Intelligence Center"
+
+vm:
+  pool_size: 1
+  memory_mb: 512
+  vcpus: 1
+  use_kvm: null
+  kernel_path: "kernel/vmlinuz"
+  rootfs_path: "rootfs/debian-12.qcow2"
+  tmpfs_dir: "/dev/shm/ghostpot"
+
+storage:
+  db_path: "data/ghostpot.db"
+  downloads_dir: "data/downloads"

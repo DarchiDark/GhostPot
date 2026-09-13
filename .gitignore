@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+
+# Data & Logs (Honeypot captures, don't publish malware to git!)
+data/
+data/downloads/
+data/ghostpot.db
+data/ghostpot.db-shm
+data/ghostpot.db-wal
+data/ssh_host_*
+*.log
+
+# Large Rootfs & Overlays (Auto-extracted on install)
+rootfs/
+overlay/
+
+# Web dependencies & builds
+cowrie_web/node_modules/
+cowrie_web/.next/
+cowrie_web/out/
+
+# OS & Editor artifacts
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary files & web logs
+cowrie_web/cowrie.json*
+cowrie_web/tmp.*
+cowrie_web/dist/

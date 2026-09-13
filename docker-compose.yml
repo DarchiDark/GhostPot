@@ -1,0 +1,25 @@
+services:
+  ghostpot:
+    build: .
+    container_name: ghostpot
+    restart: unless-stopped
+    cap_add:
+      - SYS_ADMIN
+      - NET_ADMIN
+      - SYS_CHROOT
+    security_opt:
+      - seccomp:unconfined
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: '2G'
+    network_mode: "host"
+    volumes:
+      - ./main.py:/app/main.py
+      - ./ghostpot:/app/ghostpot
+      - ./rootfs:/app/rootfs
+      - ./cowrie_web/dist:/app/cowrie_web/dist
+      - ./data:/app/data
+      - ./config.yaml:/app/config.yaml
+      - /dev/shm:/dev/shm

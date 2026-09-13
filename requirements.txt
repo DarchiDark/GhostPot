@@ -1,0 +1,12 @@
+fastapi>=0.110.0
+uvicorn>=0.29.0
+pydantic>=2.6.0
+pydantic-settings>=2.2.0
+pyyaml>=6.0.1
+aiofiles>=23.2.1
+aiosqlite>=0.20.0
+requests>=2.31.0
+geoip2>=4.8.0
+cryptography>=42.0.0
+asyncssh>=2.14.0
+paramiko>=3.4.0

@@ -1,0 +1,5 @@
+rootfs/
+cowrie_web/node_modules
+venv
+.git
+data/downloads
