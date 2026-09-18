@@ -316,11 +316,19 @@ class L7MitmProxyServer:
         logger.info(f"    - Kernel: {self.global_persona['profile']['kernel']}")
         logger.info(f"    - CPU: {self.global_persona['cpu']}")
         
+        os.makedirs("data", exist_ok=True)
+        key_path = "data/ssh_host_rsa_key"
+        if not os.path.exists(key_path):
+            logger.info("[*] Generating ephemeral SSH Host RSA Key in data/ssh_host_rsa_key...")
+            key = asyncssh.generate_private_key("ssh-rsa", key_size=2048)
+            key.write_private_key(key_path)
+            os.chmod(key_path, 0o600)
+
         self.server = await asyncssh.create_server(
             lambda: HoneySSHServer(self.config, self.db, self.vm_pool),
             host='0.0.0.0', 
             port=ssh_port,
-            server_host_keys=['data/ssh_host_rsa_key'],
+            server_host_keys=[key_path],
             server_version=self.global_persona['profile']['ssh_banner']
         )
         logger.info(f"[+] L7 SSH MitM Engine listening on 0.0.0.0:{ssh_port}")

@@ -105,6 +105,8 @@ async def main():
     await dns_dpi.stop()
     await vm_pool.shutdown()
     await auth_mgr.stop()
+    from ghostpot.egress_guard import EgressGuard
+    EgressGuard.cleanup_global_rules()
     server.should_exit = True
     await server_task
     await db.close()

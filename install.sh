@@ -29,7 +29,7 @@ fi
 # Detect KVM
 echo -e "[*] Checking hardware virtualization (KVM)..."
 if [ -e /dev/kvm ]; then
-    echo -e "${GREEN}[✓] KVM Hardware Acceleration is ACTIVE!${NC}"
+    echo -e "${GREEN}[✓] KVM Hardware Acceleration is available!${NC}"
 else
     echo -e "${YELLOW}[!] Warning: /dev/kvm not detected. Running in QEMU TCG software emulation mode.${NC}"
     echo -e "    (Tip: Enable Nested Virtualization in your VPS provider dashboard for maximum performance)"
@@ -45,7 +45,7 @@ fi
 RANDOM_PORT=$((20000 + RANDOM % 38000))
 DEFAULT_SLUG="ghost_$(openssl rand -hex 6 2>/dev/null || cat /dev/urandom | tr -dc 'a-f0-9' | fold -w 12 | head -n 1)"
 
-echo -e "\n${CYAN}--- Configuration Setup ---${NC}"
+echo -e "\n${CYAN}Configuration Setup${NC}"
 read -p "Enable SSH Honeypot (Port 22)? [Y/n]: " RESP_SSH
 RESP_SSH=${RESP_SSH:-Y}
 if [[ "$RESP_SSH" =~ ^[Yy]$ ]]; then
@@ -68,10 +68,10 @@ else
     TELNET_PORT=23
 fi
 
-read -p "Web Panel Port [${RANDOM_PORT}]: " INPUT_WEB_PORT
+read -p "Web Panel Port [or ${RANDOM_PORT}]: " INPUT_WEB_PORT
 WEB_PORT=${INPUT_WEB_PORT:-$RANDOM_PORT}
 
-read -p "Secret Web URL Slug [${DEFAULT_SLUG}]: " INPUT_SLUG
+read -p "Secret Web URL Slug [or ${DEFAULT_SLUG}]: " INPUT_SLUG
 SECRET_SLUG=${INPUT_SLUG:-$DEFAULT_SLUG}
 
 echo -e "\n${CYAN}--- Network & Threat Scoring Customization ---${NC}"
@@ -118,12 +118,17 @@ else
     THREAT_ENABLED=false
 fi
 
-echo -e "\n${CYAN}--- Authentication Policy Setup ---${NC}"
+echo -e "\n${CYAN}Authentication Policy${NC}"
 echo -e "Choose SSH Authentication Policy:"
-echo -e "  1) [Recommended] Capture All (Allow password bruteforce + accept all credentials & SSH keys)"
-echo -e "  2) Strict Password Only (Require password attempt, block non-authenticated sessions)"
-echo -e "  3) Dynamic Honeypot Simulation (Require 1-3 failed attempts before granting access)"
-echo -e "  4) Open Sandbox (Allow entry even without password / None Auth)"
+echo -e "  1) [Recommended] Dynamic Simulation (High-Stealth Honeypot):"
+echo -e "     - Simulates a real server: rejects the first 1-3 attempts with 'Access Denied',"
+echo -e "       then accepts the next password and binds/locks it to that attacker's IP for 24h."
+echo -e "  2) Capture All (Instant Entry):"
+echo -e "     - Accepts any credentials on the very 1st attempt (records password & SSH keys)."
+echo -e "  3) Strict Password Only:"
+echo -e "     - Requires password attempts (blocks SSH public keys and None-Auth)."
+echo -e "  4) Open Sandbox (Zero-Auth / Instant Entry):"
+echo -e "     - Accepts everything PLUS allows direct shell access without entering any password at all (None-Auth)."
 read -p "Select Auth Policy [1-4, default 1]: " AUTH_CHOICE
 AUTH_CHOICE=${AUTH_CHOICE:-1}
 
@@ -131,16 +136,16 @@ case "$AUTH_CHOICE" in
     2)
         AUTH_MODE="accept_all"
         ALLOW_NONE=false
-        ALLOW_PUBKEY=false
+        ALLOW_PUBKEY=true
         REQ_PASS=true
         MIN_ATT=1
         ;;
     3)
-        AUTH_MODE="dynamic"
+        AUTH_MODE="accept_all"
         ALLOW_NONE=false
-        ALLOW_PUBKEY=true
+        ALLOW_PUBKEY=false
         REQ_PASS=true
-        MIN_ATT=2
+        MIN_ATT=1
         ;;
     4)
         AUTH_MODE="accept_all"
@@ -150,11 +155,11 @@ case "$AUTH_CHOICE" in
         MIN_ATT=1
         ;;
     *)
-        AUTH_MODE="accept_all"
+        AUTH_MODE="dynamic"
         ALLOW_NONE=false
         ALLOW_PUBKEY=true
         REQ_PASS=true
-        MIN_ATT=1
+        MIN_ATT=2
         ;;
 esac
 
@@ -215,18 +220,16 @@ storage:
   downloads_dir: "data/downloads"
 CONFIG
 
+mkdir -p data/downloads
+
 echo -e "\n[*] Building and launching Ghostpot container..."
 docker compose up -d --build
 
 SERVER_IP=$(curl -s4 ifconfig.me || hostname -I | awk '{print $1}' || echo "YOUR_SERVER_IP")
 
-echo -e "\n${GREEN}================================================================${NC}"
 echo -e "${GREEN}  ✓ GHOSTPOT DEPLOYED SUCCESSFULLY!${NC}"
-echo -e "${GREEN}================================================================${NC}"
 echo -e "  - SSH Honeypot:    ${CYAN}${SSH_ENABLED} (Port ${SSH_PORT})${NC}"
 echo -e "  - Telnet Honeypot: ${CYAN}${TELNET_ENABLED} (Port ${TELNET_PORT})${NC}"
 echo -e "  - Web Dashboard:   ${MAGENTA}http://${SERVER_IP}:${WEB_PORT}/${SECRET_SLUG}/${NC}"
-echo -e "  - Crawler Defense: ${YELLOW}404 on all standard URLs (Port is invisible to crawlers)${NC}"
-echo -e "${GREEN}================================================================${NC}"
 echo -e "To view live logs:    ${CYAN}docker compose logs -f${NC}"
 echo -e "To stop Ghostpot:     ${CYAN}docker compose down${NC}\n"

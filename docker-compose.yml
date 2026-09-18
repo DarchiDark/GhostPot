@@ -16,10 +16,7 @@ services:
           memory: '2G'
     network_mode: "host"
     volumes:
-      - ./main.py:/app/main.py
-      - ./ghostpot:/app/ghostpot
-      - ./rootfs:/app/rootfs
-      - ./cowrie_web/dist:/app/cowrie_web/dist
       - ./data:/app/data
       - ./config.yaml:/app/config.yaml
       - /dev/shm:/dev/shm
+

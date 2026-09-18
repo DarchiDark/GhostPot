@@ -33,7 +33,7 @@
 Run the installer on any Linux server:
 
 ```bash
-git clone https://github.com/yourusername/ghostpot.git
+git clone https://github.com/darchidark/ghostpot.git
 cd ghostpot
 chmod +x install.sh
 sudo ./install.sh

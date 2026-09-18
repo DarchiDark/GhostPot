@@ -41,8 +41,9 @@ class VMInstance:
 
     async def start(self):
         """Creates RAM disk overlay and launches isolated namespace sandbox."""
-        self.tmpfs_dir.mkdir(parents=True, exist_ok=True)
         base_dir = os.path.abspath("rootfs/debian_base")
+        if not os.path.exists(base_dir):
+            base_dir = os.path.abspath("/app/rootfs/debian_base")
 
         if not os.path.exists(base_dir):
             raise FileNotFoundError(f"Debian base filesystem ({base_dir}) not found!")

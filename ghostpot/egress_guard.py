@@ -17,6 +17,11 @@ class EgressGuard:
         subprocess.run(["iptables", "-t", "nat", "-A", "POSTROUTING", "-s", "10.99.0.0/16", "!", "-d", "10.99.0.0/16", "-j", "MASQUERADE"], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     @staticmethod
+    def cleanup_global_rules():
+        """Removes global forwarding and NAT rules upon shutdown."""
+        subprocess.run(["iptables", "-t", "nat", "-D", "POSTROUTING", "-s", "10.99.0.0/16", "!", "-d", "10.99.0.0/16", "-j", "MASQUERADE"], check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+    @staticmethod
     def apply_guest_rules(guest_ip: str, host_veth_ip: str, veth_host: str):
         """
         Rock-solid Outbound Protection Policy:
